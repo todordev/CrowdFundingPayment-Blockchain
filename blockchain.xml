@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.3" type="plugin" group="crowdfundingpayment" method="upgrade">
+    <name>PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN</name>
+    <author>Todor Iliev</author>
+    <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <authorEmail>todor@itprism.com</authorEmail>
+    <authorUrl>http://itprism.com</authorUrl>
+    <version>1.0</version>
+    <creationDate>16 January, 2015</creationDate>
+    <description><![CDATA[
+    <p>CrowdFunding Payment - Blockchain is a plug-in that enables Blockchain payments.</p>
+    <p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
+    <p><a href='http://itprism.com/' target='_blank'>Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
+    <p>Please, <a href='http://extensions.joomla.org/extensions/extension/e-commerce/donations/crowdfunding' target='_blank'>vote for the extension</a> on Joomla! Extensions Directory</p>
+    ]]></description>
+    
+    <help url="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_HELP_URL"/>
+    
+    <files>
+        <filename plugin="blockchain">blockchain.php</filename>
+        
+        <folder>images</folder>
+        <folder>language</folder>
+    </files>
+    
+    <config>
+		<fields name="params" addfieldpath="/administrator/components/com_crowdfunding/models/fields">
+			<fieldset name="basic">
+		        <field name="receiving_address" type="text" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_RECEIVING_ADDRESS" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_RECEIVING_ADDRESS_DESC" class="span6" />
+                <field name="callback_url" type="text" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw&amp;payment_service=blockchain" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL_DESC" class="span6" />
+            </fieldset>
+            
+            <fieldset name="sandbox" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_TEST_MODE">
+                <field name="test_mode" type="radio" default="1" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_ENABLE_TEST_MODE" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_ENABLE_TEST_MODE_DESC" class="btn-group">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+            </fieldset>
+            
+            <fieldset name="emails" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_NOTIFICATION_EMAILS">
+                <field name="admin_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN_DESC" class="btn-group" />
+                <field name="creator_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR_DESC" class="btn-group" />
+                <field name="user_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER_DESC" class="btn-group" />
+                
+                <field name="email_mode" type="list" default="html" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_EMAIL_MODE" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_EMAIL_MODE_DESC" >
+                   <option value="plain">PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_PLAIN</option>
+                   <option value="html">PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_HTML</option>
+                </field>
+			</fieldset>
+	            
+        </fields>
+	</config>
+</extension>
