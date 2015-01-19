@@ -123,7 +123,8 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
 
             $html[] = '<label for="blockchain_receiving_address">' . JText::_($this->textPrefix . "_RECEIVING_ADDRESS") . '</label>';
             $html[] = '<input class="input-block-level" type="text" value="' . $response->address . '" id="blockchain_receiving_address"/>';
-            $html[] = '<span class="help-block">' . JText::sprintf($this->textPrefix . "_SEND_COINS_TO_ADDRESS", $item->amountFormated) . '</span>';
+            $html[] = '<p class="alert alert-info"><i class="icon-info-sign"></i> ' . JText::sprintf($this->textPrefix . "_SEND_COINS_TO_ADDRESS", $item->amountFormated) . '</p>';
+            $html[] = '<a class="btn btn-primary" href="'.JRoute::_(CrowdFundingHelperRoute::getBackingRoute($item->slug, $item->catslug, "share")).'"><i class="icon-chevron-right"></i> ' . JText::_($this->textPrefix . "_CONTINUE_NEXT_STEP") . '</a>';
         }
 
         $html[] = '</div>'; // Close "well".
