@@ -28,6 +28,11 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
     protected $extraDataKeys  = array("value", "input_address", "confirmations", "transaction_hash", "input_transaction_hash", "destination_address", "anonymous");
 
     /**
+     * @var JApplicationSite
+     */
+    protected $app;
+
+    /**
      * This method prepare and return address to Blockchain,
      * where the user have to go to make a donation.
      *
@@ -41,10 +46,8 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         if (strcmp("com_crowdfunding.payment", $context) != 0) {
             return null;
         }
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
 
-        if ($app->isAdmin()) {
+        if ($this->app->isAdmin()) {
             return null;
         }
 
@@ -61,7 +64,7 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         $pluginURI = "plugins/crowdfundingpayment/blockchain";
 
         $html   = array();
-        $html[] = '<div class="well">';
+        $html[] = '<div class="well">'; // Open "well".
 
         $html[] = '<h4><img src="' . $pluginURI . '/images/blockchain_icon.png" width="38" height="32" /> ' . JText::_($this->textPrefix . "_TITLE") . '</h4>';
 
@@ -78,7 +81,7 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
 
         // Get intention
         $userId  = JFactory::getUser()->get("id");
-        $aUserId = $app->getUserState("auser_id");
+        $aUserId = $this->app->getUserState("auser_id");
 
         $intention = $this->getIntention(array(
             "user_id"    => $userId,
@@ -146,10 +149,7 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
             return null;
         }
 
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
-        if ($app->isAdmin()) {
+        if ($this->app->isAdmin()) {
             return null;
         }
 
@@ -180,7 +180,7 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         $currency   = CrowdFundingCurrency::getInstance(JFactory::getDbo(), $currencyId, $params);
 
         // Get intention data
-        $intentionId = $app->input->get->get("intention_id");
+        $intentionId = $this->app->input->get->get("intention_id");
 
         jimport("crowdfunding.intention");
         $intention = new CrowdFundingIntention(JFactory::getDbo());
@@ -283,13 +283,15 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
      * @param Joomla\Registry\Registry $params Component parameters
      * @param object $project Project data
      * @param object $reward Reward data
+     * @param object $paymentSession Payment session data.
      */
-    public function onAfterPayment($context, &$transaction, &$params, &$project, &$reward)
+    public function onAfterPayment($context, &$transaction, &$params, &$project, &$reward, &$paymentSession)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
+        if (strcmp("com_crowdfunding.notify.blockchain", $context) != 0) {
+            return;
+        }
 
-        if ($app->isAdmin()) {
+        if ($this->app->isAdmin()) {
             return;
         }
 
@@ -299,10 +301,6 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         // Check document type
         $docType = $doc->getType();
         if (strcmp("raw", $docType) != 0) {
-            return;
-        }
-
-        if (strcmp("com_crowdfunding.notify.blockchain", $context) != 0) {
             return;
         }
 
@@ -407,8 +405,12 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         }
 
         // Store the transaction data
-        $transaction->bind($transactionData);
+        $transaction->bind($transactionData, array("extra_data"));
+        $transaction->addExtraData($transactionData["extra_data"]);
         $transaction->store();
+
+        // DEBUG DATA
+        JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_TRANSACTION_OBJECT_AFTER_STORED_DATA"), $this->debugType, $transaction->getProperties()) : null;
 
         // If it is not completed (it might be pending or other status),
         // stop the process. Only completed transaction will continue
