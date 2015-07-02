@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.3" type="plugin" group="crowdfundingpayment" method="upgrade">
+<extension version="3.4" type="plugin" group="crowdfundingpayment" method="upgrade">
     <name>PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN</name>
     <author>Todor Iliev</author>
     <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>1.0</version>
-    <creationDate>20 February, 2015</creationDate>
+    <version>2.0</version>
+    <creationDate>30 June, 2015</creationDate>
     <description><![CDATA[
-    <p>CrowdFunding Payment - Blockchain is a plug-in that enables Blockchain payments.</p>
-    <p>Invest in the extension and help for its improvement. You can <a href="http://itprism.com/sponsorship" target="_blank">sponsor the extension via SMS, PayPal or Bitcoin</a>.</p>
+    <p>Crowdfunding Payment - Blockchain is a plug-in that enables Blockchain payments.</p>
     <p><a href='http://itprism.com/' target='_blank'>Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
     <p>Please, <a href='http://extensions.joomla.org/extensions/extension/e-commerce/donations/crowdfunding' target='_blank'>vote for the extension</a> on Joomla! Extensions Directory</p>
     ]]></description>
@@ -38,10 +37,10 @@
                 </field>
             </fieldset>
             
-            <fieldset name="emails" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_NOTIFICATION_EMAILS">
-                <field name="admin_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN_DESC" class="btn-group" />
-                <field name="creator_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR_DESC" class="btn-group" />
-                <field name="user_mail_id" type="cfemails" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER_DESC" class="btn-group" />
+            <fieldset name="emails" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_NOTIFICATION_EMAILS" addfieldpath="/administrator/components/com_emailtemplates/models/fields">
+                <field name="admin_mail_id" type="emailtemplate" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_ADMIN_DESC" class="btn-group" />
+                <field name="creator_mail_id" type="emailtemplate" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_CREATOR_DESC" class="btn-group" />
+                <field name="user_mail_id" type="emailtemplate" default="0" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_SEND_MAIL_USER_DESC" class="btn-group" />
                 
                 <field name="email_mode" type="list" default="html" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_EMAIL_MODE" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_EMAIL_MODE_DESC" >
                    <option value="plain">PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_PLAIN</option>

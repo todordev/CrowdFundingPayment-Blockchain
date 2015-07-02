@@ -1,6 +1,6 @@
 <?php
 /**
- * @package         CrowdFunding
+ * @package         Crowdfunding
  * @subpackage      Plugins
  * @author          Todor Iliev
  * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
@@ -10,15 +10,17 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('crowdfunding.payment.plugin');
+jimport("Prism.init");
+jimport("Crowdfunding.init");
+jimport("EmailTemplates.init");
 
 /**
- * CrowdFunding Blockchain payment plugin
+ * Crowdfunding Blockchain payment plugin
  *
- * @package        CrowdFunding
+ * @package        Crowdfunding
  * @subpackage     Plugins
  */
-class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
+class plgCrowdfundingPaymentBlockchain extends Crowdfunding\Payment\Plugin
 {
     protected $paymentService = "blockchain";
 
@@ -69,44 +71,42 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         $html[] = '<h4><img src="' . $pluginURI . '/images/blockchain_icon.png" width="38" height="32" /> ' . JText::_($this->textPrefix . "_TITLE") . '</h4>';
 
         // Check for valid data.
-        $receivingAddress   = JString::trim($this->params->get("receiving_address"));
+        $receivingAddress   = Joomla\String\String::trim($this->params->get("receiving_address"));
         $callbackUrl        = $this->getCallbackUrl();
 
         if (!$receivingAddress or !$callbackUrl) {
-            $html[] = '<div class="alert">' . JText::_($this->textPrefix . "_ERROR_PLUGIN_NOT_CONFIGURED") . '</div>';
+            $html[] = '<div class="bg-warning mtb-10"><span class="glyphicon glyphicon-warning-sign"></span> ' . JText::_($this->textPrefix . "_ERROR_PLUGIN_NOT_CONFIGURED") . '</div>';
             $html[] = '</div>'; // Close "well".
 
             return implode("\n", $html);
         }
 
-        // Get intention
-        $userId  = JFactory::getUser()->get("id");
-        $aUserId = $this->app->getUserState("auser_id");
+        // Get payment session
+        $paymentSessionContext    = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $item->id;
+        $paymentSessionLocal      = $this->app->getUserState($paymentSessionContext);
 
-        $intention = $this->getIntention(array(
-            "user_id"    => $userId,
-            "auser_id"   => $aUserId,
-            "project_id" => $item->id
+        $paymentSession = $this->getPaymentSession(array(
+            "session_id"    => $paymentSessionLocal->session_id
         ));
 
         // Prepare transaction ID.
-        jimport("itprism.string");
-        $txnId         = new ITPrismString();
+        $txnId         = new Prism\String();
         $txnId->generateRandomString();
-        $txnId = JString::strtoupper($txnId);
+        $txnId = Joomla\String\String::strtoupper($txnId);
 
         // Store the unique key.
-        $intention->setUniqueKey($txnId);
-        $intention->store();
+        $paymentSession->setUniqueKey($txnId);
+        $paymentSession->storeUniqueKey();
 
         // Prepare callback URL data.
-        $callbackUrl .= "&intention_id=".(int)$intention->getId()."&txn_id=".$txnId;
+        $callbackUrl .= "&payment_session_id=".(int)$paymentSession->getId()."&txn_id=".$txnId;
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_CALLBACK_URL"), $this->debugType, $callbackUrl) : null;
 
         // Send request for button
-        jimport("itprism.payment.blockchain.Blockchain");
+        jimport("Prism.Payment.Blockchain.Blockchain");
+
         $blockchain = new Blockchain();
         $response   = $blockchain->Receive->generate($receivingAddress, $callbackUrl);
 
@@ -117,17 +117,20 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
 
         // Check for test mode.
         if ($this->params->get("test_mode", 1)) {
-            $html[] = '<div class="alert">' . JText::_($this->textPrefix . "_ERROR_TEST_MODE") . '</div>';
+            $html[] = '<div class="bg-info p-10-5"><span class="glyphicon glyphicon-info-sign"></span> ' . JText::_($this->textPrefix . "_ERROR_TEST_MODE") . '</div>';
 
             $html[] = '<label for="blockchain_callback_url">'.JText::_($this->textPrefix . "_CALLBACK_URL").'</label>';
-            $html[] = '<textarea name="callback_url" id="blockchain_callback_url" class="input-block-level">'.$callbackUrl.'</textarea>';
+            $html[] = '<textarea name="callback_url" id="blockchain_callback_url" class="form-control">'.$callbackUrl.'</textarea>';
 
         } else {
 
+            $html[] = '<div class="form-group">';
             $html[] = '<label for="blockchain_receiving_address">' . JText::_($this->textPrefix . "_RECEIVING_ADDRESS") . '</label>';
-            $html[] = '<input class="input-block-level" type="text" value="' . $response->address . '" id="blockchain_receiving_address"/>';
-            $html[] = '<p class="alert alert-info"><i class="icon-info-sign"></i> ' . JText::sprintf($this->textPrefix . "_SEND_COINS_TO_ADDRESS", $item->amountFormated) . '</p>';
-            $html[] = '<a class="btn btn-primary" href="'.JRoute::_(CrowdFundingHelperRoute::getBackingRoute($item->slug, $item->catslug, "share")).'"><i class="icon-chevron-right"></i> ' . JText::_($this->textPrefix . "_CONTINUE_NEXT_STEP") . '</a>';
+            $html[] = '<input class="form-control input-lg" type="text" value="' . $response->address . '" id="blockchain_receiving_address"/>';
+            $html[] = '</div>';
+
+            $html[] = '<p class="bg-info p-10-5 mt-10"><span class="glyphicon glyphicon-info-sign"></span> ' . JText::sprintf($this->textPrefix . "_SEND_COINS_TO_ADDRESS", $item->amountFormated) . '</p>';
+            $html[] = '<a class="btn btn-primary" href="'.JRoute::_(CrowdfundingHelperRoute::getBackingRoute($item->slug, $item->catslug, "share")).'"><span class="glyphicon glyphicon-chevron-right"></span> ' . JText::_($this->textPrefix . "_CONTINUE_NEXT_STEP") . '</a>';
         }
 
         $html[] = '</div>'; // Close "well".
@@ -175,22 +178,18 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         );
 
         // Get extension parameters
-        jimport("crowdfunding.currency");
         $currencyId = $params->get("project_currency");
-        $currency   = CrowdFundingCurrency::getInstance(JFactory::getDbo(), $currencyId, $params);
+        $currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $currencyId, $params);
 
-        // Get intention data
-        $intentionId = $this->app->input->get->get("intention_id");
-
-        jimport("crowdfunding.intention");
-        $intention = new CrowdFundingIntention(JFactory::getDbo());
-        $intention->load($intentionId);
+        // Get payment session data
+        $paymentSessionId = $this->app->input->get->get("payment_session_id");
+        $paymentSession = $this->getPaymentSession(array("id" => $paymentSessionId));
 
         // DEBUG DATA
-        JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_INTENTION"), $this->debugType, $intention->getProperties()) : null;
+        JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_PAYMENT_SESSION"), $this->debugType, $paymentSession->getProperties()) : null;
 
         // Validate transaction data
-        $validData = $this->validateData($_GET, $currency->getAbbr(), $intention);
+        $validData = $this->validateData($_GET, $currency->getCode(), $paymentSession);
         if (is_null($validData)) {
             return $result;
         }
@@ -199,9 +198,8 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_VALID_DATA"), $this->debugType, $validData) : null;
 
         // Get project
-        jimport("crowdfunding.project");
-        $projectId = JArrayHelper::getValue($validData, "project_id");
-        $project   = CrowdFundingProject::getInstance(JFactory::getDbo(), $projectId);
+        $projectId = Joomla\Utilities\ArrayHelper::getValue($validData, "project_id");
+        $project   = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_PROJECT_OBJECT"), $this->debugType, $project->getProperties()) : null;
@@ -231,7 +229,7 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         }
 
         // Update the number of distributed reward.
-        $rewardId = JArrayHelper::getValue($transactionData, "reward_id");
+        $rewardId = Joomla\Utilities\ArrayHelper::getValue($transactionData, "reward_id");
         $reward   = null;
         if (!empty($rewardId)) {
             $reward = $this->updateReward($transactionData);
@@ -244,28 +242,28 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
 
         //  Prepare the data that will be returned
 
-        $result["transaction"] = JArrayHelper::toObject($transactionData);
+        $result["transaction"] = Joomla\Utilities\ArrayHelper::toObject($transactionData);
 
         // Generate object of data based on the project properties
         $properties        = $project->getProperties();
-        $result["project"] = JArrayHelper::toObject($properties);
+        $result["project"] = Joomla\Utilities\ArrayHelper::toObject($properties);
 
         // Generate object of data based on the reward properties
         if (!empty($reward)) {
             $properties       = $reward->getProperties();
-            $result["reward"] = JArrayHelper::toObject($properties);
+            $result["reward"] = Joomla\Utilities\ArrayHelper::toObject($properties);
         }
 
-        // Generate data object, based on the intention properties.
-        $properties       = $intention->getProperties();
-        $result["payment_session"] = JArrayHelper::toObject($properties);
+        // Generate data object, based on the payment session properties.
+        $properties       = $paymentSession->getProperties();
+        $result["payment_session"] = Joomla\Utilities\ArrayHelper::toObject($properties);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . "_DEBUG_RESULT_DATA"), $this->debugType, $result) : null;
 
-        // Remove intention
-        $intention->delete();
-        unset($intention);
+        // Remove payment session.
+        $txnStatus = (isset($result["transaction"]->txn_status)) ? $result["transaction"]->txn_status : null;
+        $this->closePaymentSession($paymentSession, $txnStatus);
 
         if (strcmp("completed", $result["transaction"]->txn_status) == 0) {
             $result["response"] = "*ok*";
@@ -313,17 +311,17 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
      *
      * @param array                 $data
      * @param string                $currency
-     * @param CrowdFundingIntention $intention
+     * @param Crowdfunding\Payment\Session $paymentSession
      *
      * @return null|array
      */
-    protected function validateData($data, $currency, $intention)
+    protected function validateData($data, $currency, $paymentSession)
     {
         // Get transaction ID.
-        $txnId     = JArrayHelper::getValue($data, "txn_id");
+        $txnId     = Joomla\Utilities\ArrayHelper::getValue($data, "txn_id");
 
         // Prepare transaction amount.
-        $amount    = JArrayHelper::getValue($data, "value", 0.000, "float");
+        $amount    = Joomla\Utilities\ArrayHelper::getValue($data, "value", 0.000, "float");
         $amount    = $amount / 100000000;
 
         // Transaction date.
@@ -331,21 +329,21 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
 
         // Get transaction status
         $status        = "pending";
-        $confirmations = JArrayHelper::getValue($data, "confirmations", 0, "int");
+        $confirmations = Joomla\Utilities\ArrayHelper::getValue($data, "confirmations", 0, "int");
         if ($confirmations >= 6) {
             $status = "completed";
         }
 
         // If the transaction has been made by anonymous user, reset reward. Anonymous users cannot select rewards.
-        $rewardId = ($intention->isAnonymous()) ? 0 : (int)$intention->getRewardId();
+        $rewardId = ($paymentSession->isAnonymous()) ? 0 : (int)$paymentSession->getRewardId();
 
         // Get additional information from transaction.
         $extraData = $this->prepareExtraData($data);
 
         // Prepare transaction data
         $transaction = array(
-            "investor_id"      => (int)$intention->getUserId(),
-            "project_id"       => (int)$intention->getProjectId(),
+            "investor_id"      => (int)$paymentSession->getUserId(),
+            "project_id"       => (int)$paymentSession->getProjectId(),
             "reward_id"        => (int)$rewardId,
             "service_provider" => "Blockchain",
             "txn_id"           => $txnId,
@@ -376,18 +374,17 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
      * Save transaction
      *
      * @param array               $transactionData The data about transaction from the payment gateway.
-     * @param CrowdFundingProject $project
+     * @param Crowdfunding\Project $project
      *
      * @return null|array
      */
     public function storeTransaction($transactionData, $project)
     {
         // Get transaction by txn ID
-        jimport("crowdfunding.transaction");
         $keys        = array(
-            "txn_id" => JArrayHelper::getValue($transactionData, "txn_id")
+            "txn_id" => Joomla\Utilities\ArrayHelper::getValue($transactionData, "txn_id")
         );
-        $transaction = new CrowdFundingTransaction(JFactory::getDbo());
+        $transaction = new Crowdfunding\Transaction(JFactory::getDbo());
         $transaction->load($keys);
 
         // DEBUG DATA
@@ -423,9 +420,9 @@ class plgCrowdFundingPaymentBlockchain extends CrowdFundingPaymentPlugin
         $transactionData["id"] = $transaction->getId();
 
         // Update project funded amount
-        $amount = JArrayHelper::getValue($transactionData, "txn_amount");
+        $amount = Joomla\Utilities\ArrayHelper::getValue($transactionData, "txn_amount");
         $project->addFunds($amount);
-        $project->updateFunds();
+        $project->storeFunds();
 
         return $transactionData;
     }
