@@ -1,6 +1,6 @@
 Crowdfunding Payment - Blockchain
 ==========================
-( Version 2.0 )
+( Version 2.1 )
 - - -
 
 This is a Bitcoin payment plug-in for Crowdfunding that enables payments via Blockchain.
