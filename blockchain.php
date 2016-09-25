@@ -3,7 +3,7 @@
  * @package         Crowdfunding
  * @subpackage      Plugins
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPL
  */
 
@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 jimport("Prism.init");
 jimport("Crowdfunding.init");
-jimport("EmailTemplates.init");
+jimport("Emailtemplates.init");
 
 /**
  * Crowdfunding Blockchain payment plugin
@@ -30,8 +30,8 @@ class plgCrowdfundingPaymentBlockchain extends Crowdfunding\Payment\Plugin
 
         $this->serviceProvider = 'Blockchain';
         $this->serviceAlias    = 'blockchain';
-        $this->textPrefix     .= '_' . \JString::strtoupper($this->serviceAlias);
-        $this->debugType      .= '_' . \JString::strtoupper($this->serviceAlias);
+        $this->textPrefix     .= '_' . strtoupper($this->serviceAlias);
+        $this->debugType      .= '_' . strtoupper($this->serviceAlias);
     }
 
     /**

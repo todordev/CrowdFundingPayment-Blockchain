@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4" type="plugin" group="crowdfundingpayment" method="upgrade">
+<extension version="3.6" type="plugin" group="crowdfundingpayment" method="upgrade">
     <name>PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN</name>
     <author>Todor Iliev</author>
-    <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.1</version>
-    <creationDate>13 November, 2015</creationDate>
+    <version>2.2-alpha</version>
+    <creationDate>25 September, 2016</creationDate>
     <description><![CDATA[
     <p>Crowdfunding Payment - Blockchain is a plug-in that enables Blockchain payments.</p>
     <p><a href='http://itprism.com/' target='_blank'>Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
@@ -26,8 +26,9 @@
     <config>
 		<fields name="params" addfieldpath="/administrator/components/com_crowdfunding/models/fields">
 			<fieldset name="basic">
-		        <field name="receiving_address" type="text" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_RECEIVING_ADDRESS" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_RECEIVING_ADDRESS_DESC" class="span6" />
-                <field name="callback_url" type="text" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw&amp;payment_service=blockchain" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL_DESC" class="span6" />
+		        <field name="xpub" type="textarea" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_XPUB" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_XPUB_DESC" class="input-xxlarge" />
+		        <field name="api_key" type="text" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_API_KEY" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_API_KEY_DESC" class="input-xxlarge" />
+                <field name="callback_url" type="cfurl" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw&amp;payment_service=blockchain" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL" description="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_CALLBACK_URL_DESC" class="input-xxlarge" />
             </fieldset>
             
             <fieldset name="sandbox" label="PLG_CROWDFUNDINGPAYMENT_BLOCKCHAIN_TEST_MODE">
